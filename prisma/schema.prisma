@@ -1,0 +1,69 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+datasource db {
+    provider = "postgresql"
+    url      = env("DATABASE_URL")
+}
+
+generator client {
+    provider = "prisma-client-js"
+}
+
+model Video {
+    id         Int         @id @default(autoincrement())
+    uuid       String      @unique @default(uuid()) @db.Uuid
+    title      String      @unique @db.VarChar(60)
+    desc       String?     @unique @db.Text
+    bytesize   Int?        @db.Integer
+    added      DateTime    @default(now()) @db.Timestamptz
+    subject    Subject     @relation(fields: [subjectId], references: [uuid])
+    subjectId  String      @db.Uuid
+    rooms      Room[]
+    processing Processing?
+
+    @@map("videos")
+}
+
+model Room {
+    id          Int     @id @default(autoincrement())
+    uuid        String  @unique @default(uuid()) @db.Uuid
+    name        String  @unique @db.VarChar(60)
+    pass_hashed String
+    videos      Video[]
+
+    @@map("rooms")
+}
+
+model Subject {
+    id     Int     @id @default(autoincrement())
+    uuid   String  @unique @default(uuid()) @db.Uuid
+    name   String  @unique @db.VarChar(60)
+    /// @onDelete(CASCADE)
+    videos Video[]
+
+    @@map("subjects")
+}
+
+model Processing {
+    id       Int    @id @default(autoincrement())
+    uuid     String @unique @db.Uuid
+    video    Video  @relation(fields: [uuid], references: [uuid])
+    status   Int    @db.SmallInt
+    progress Int    @db.SmallInt
+
+    @@map("video_upload_progress")
+}
+
+model AdminUser {
+    username     String   @unique
+    pass_hashed  String
+    latest_login DateTime @db.Timestamptz
+}
+
+model Session {
+    id        String   @id
+    sid       String   @unique
+    data      String
+    expiresAt DateTime
+}

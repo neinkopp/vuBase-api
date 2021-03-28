@@ -85,5 +85,6 @@ const port = 4000;
 app.use("/", routes);
 
 app.listen(port, () => {
+	console.log("App root is: " + process.env.NODE_APP_ROOT);
 	console.log("Server listening on port " + port);
 });

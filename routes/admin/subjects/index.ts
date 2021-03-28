@@ -91,7 +91,7 @@ router.delete("/:uuid", async (req, res) => {
 
 		if (videosToDelete) {
 			videosToDelete.videos.map((v) => {
-				const appRoot = require.main ? path.dirname(require.main.filename) : "";
+				const appRoot = process.env.NODE_APP_ROOT;
 				fs.rmSync(appRoot + "/storage/" + v.uuid, {
 					recursive: true,
 					force: true,

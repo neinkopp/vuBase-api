@@ -19,7 +19,7 @@ export default class VideoProcessing extends EventEmitter {
 	file: UploadedFile;
 	videoData: VideoData;
 
-	appRoot = require.main ? path.dirname(require.main.filename) : "";
+	appRoot = process.env.NODE_APP_ROOT;
 
 	// 0 = error | 1 = initial state | 2 = encoding | 3 = video online
 	processingState = 1;

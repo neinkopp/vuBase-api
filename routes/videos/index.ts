@@ -84,7 +84,7 @@ router.get("/:uuid*", (req, res) => {
 				});
 			} else {
 				fs.createReadStream(
-					path.dirname(require!.main!.filename) + "/storage/" + req.url
+					process.env.NODE_APP_ROOT + "/storage/" + req.url
 				).pipe(res);
 			}
 		})

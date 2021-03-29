@@ -3,14 +3,13 @@ import { PrismaClient } from "@prisma/client";
 import shortUUID, { uuid } from "short-uuid";
 const translator = shortUUID();
 import fs from "fs";
-import path from "path";
 
 const router = expressRouter.Router();
 const prisma = new PrismaClient();
 
 router.get("/", async (req, res) => {
 	if (!req.session.roomId) {
-		res.json([]);
+		res.sendStatus(401);
 		return;
 	}
 	try {
@@ -49,6 +48,10 @@ router.get("/", async (req, res) => {
 });
 
 router.get("/:uuid*", (req, res) => {
+	if (!req.session.roomId) {
+		res.sendStatus(401);
+		return;
+	}
 	if (!require.main) {
 		res.sendStatus(500);
 		return;
@@ -92,21 +95,6 @@ router.get("/:uuid*", (req, res) => {
 			console.log(e);
 			res.sendStatus(500);
 		});
-
-	//prisma.video
-	//	.findFirst({
-	//		where: {
-	//			uuid: req.params.uuid,
-	//			rooms: {
-	//				every: {
-	//					uuid: req.session.roomId,
-	//				},
-	//			},
-	//			processing: {
-	//				status: 3,
-	//			},
-	//		},
-	//	})
 });
 
 export = router;

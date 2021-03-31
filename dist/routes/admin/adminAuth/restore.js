@@ -54,6 +54,10 @@ router.post("/restore", function (req, res) { return __awaiter(void 0, void 0, v
                 return [3 /*break*/, 4];
             case 1:
                 if (!(key.replace(/\s/g, "") !== process.env.RESET_ACCOUNT_SECRET)) return [3 /*break*/, 2];
+                console.log("Specified was " +
+                    key.replace(/\s/g, "") +
+                    " but reset secret was " +
+                    process.env.RESET_ACCOUNT_SECRET);
                 res.status(401).json({
                     loggedIn: false,
                     message: "Wrong credentials"

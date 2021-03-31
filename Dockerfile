@@ -11,6 +11,4 @@ COPY . .
 
 EXPOSE 4000
 
-ENV NODE_APP_ROOT /usr/src/api
-
 CMD npx prisma migrate dev && npx prisma generate && npm run defaultUser && npm run start

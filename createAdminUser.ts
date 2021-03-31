@@ -20,6 +20,7 @@ try {
 				where: { username: "default" },
 			});
 			console.log("Successfully upserted user '" + upsert.username + "'");
+			console.log("Node_APP_ROOT = " + process.env.NODE_APP_ROOT);
 			process.exit(0);
 		});
 } catch (e) {

@@ -64,6 +64,7 @@ try {
                 case 1:
                     upsert = _a.sent();
                     console.log("Successfully upserted user '" + upsert.username + "'");
+                    console.log("Node_APP_ROOT = " + process.env.NODE_APP_ROOT);
                     process.exit(0);
                     return [2 /*return*/];
             }

@@ -19,12 +19,7 @@ const app = express();
 
 app.use(
 	cors({
-		origin: [
-			"http://localhost:3000",
-			"http://localhost:3001",
-			"http://192.168.178.74:3000",
-			"http://192.168.178.74:3001",
-		],
+		origin: ["https://vubase.de", "https://admin.vubase.de"],
 		methods: ["POST", "GET", "PATCH", "DELETE"],
 		credentials: true,
 	})

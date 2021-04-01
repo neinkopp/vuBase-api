@@ -3,13 +3,17 @@ const router = expressRouter.Router();
 
 router.get("/logout", (req, res) => {
 	try {
-		req.session.destroy((err) => {
-			if (err) {
-				console.log(err);
-				res.sendStatus(500);
-				return;
-			}
-		});
+		if (req.session.roomId) {
+			req.session.roomId = undefined;
+		} else {
+			req.session.destroy((err) => {
+				if (err) {
+					console.log(err);
+					res.sendStatus(500);
+					return;
+				}
+			});
+		}
 		res.json({
 			loggedOut: true,
 			message: "User logged out successfully",

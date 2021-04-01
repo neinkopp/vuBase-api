@@ -15,9 +15,18 @@ router.get("/", async (req, res) => {
 	try {
 		const uuid = req.session.roomId;
 		const videos = await prisma.room.findFirst({
-			where: { uuid },
+			where: {
+				uuid,
+			},
 			select: {
 				videos: {
+					where: {
+						processing: {
+							is: {
+								progress: 3,
+							},
+						},
+					},
 					select: {
 						uuid: true,
 						title: true,
@@ -76,6 +85,17 @@ router.get("/:uuid*", (req, res) => {
 				videos: {
 					some: {
 						uuid: req.params.uuid,
+					},
+				},
+			},
+			select: {
+				videos: {
+					where: {
+						processing: {
+							is: {
+								progress: 3,
+							},
+						},
 					},
 				},
 			},

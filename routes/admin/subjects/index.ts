@@ -70,6 +70,22 @@ router.patch("/:uuid", async (req, res) => {
 router.delete("/:uuid", async (req, res) => {
 	const uuid = req.params.uuid;
 	try {
+		const videosNotProcessed = await prisma.video.findFirst({
+			where: {
+				subjectId: uuid,
+				processing: {
+					isNot: {
+						progress: 3,
+					},
+				},
+			},
+		});
+
+		if (videosNotProcessed) {
+			res.sendStatus(400);
+			return;
+		}
+
 		const videosToDelete = await prisma.subject.findFirst({
 			where: { uuid },
 			select: {

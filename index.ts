@@ -51,7 +51,9 @@ const sess = {
 		secure: false,
 		maxAge: 7 * 24 * 60 * 60 * 1000, // ms
 	},
-	secret: "xxxxxxxxxxxxx",
+	secret: process.env.SESSION_COOKIE_SECRET
+		? process.env.SESSION_COOKIE_SECRET
+		: "",
 	store: new PrismaSessionStore(prisma, {
 		checkPeriod: 2 * 60 * 1000, //ms
 		dbRecordIdIsSessionId: true,
@@ -63,15 +65,6 @@ if (app.get("env") === "production") {
 	app.set("trust proxy", 1); // trust first proxy
 	sess.cookie.secure = true; // serve secure cookies
 }
-
-app.get("/testing", async (req, res) => {
-	const video = await prisma.video.findFirst({
-		where: {
-			title: "blablabla",
-		},
-	});
-	res.json(video);
-});
 
 app.use(expressSession(sess));
 

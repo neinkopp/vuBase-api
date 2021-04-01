@@ -11,4 +11,4 @@ COPY . .
 
 EXPOSE 4000
 
-CMD npx prisma migrate dev && npx prisma generate && npm run defaultUser && npm run start
+CMD [ -d "./pgdata" ] && npx prisma migrate deploy || npx prisma migrate dev && npx prisma generate && npm run defaultUser && npm run start

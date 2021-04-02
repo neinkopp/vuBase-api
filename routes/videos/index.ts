@@ -22,8 +22,8 @@ router.get("/", async (req, res) => {
 				videos: {
 					where: {
 						processing: {
-							is: {
-								progress: 3,
+							status: {
+								equals: 3,
 							},
 						},
 					},
@@ -92,8 +92,8 @@ router.get("/:uuid*", (req, res) => {
 				videos: {
 					where: {
 						processing: {
-							is: {
-								progress: 3,
+							status: {
+								equals: 3,
 							},
 						},
 					},
@@ -106,9 +106,13 @@ router.get("/:uuid*", (req, res) => {
 					message: "Wrong room",
 				});
 			} else {
-				fs.createReadStream(
-					process.env.NODE_APP_ROOT + "/storage/" + req.url
-				).pipe(res);
+				fs.createReadStream(process.env.NODE_APP_ROOT + "/storage/" + req.url)
+					.on("error", (e) => {
+						console.log(e);
+						res.sendStatus(404);
+						return;
+					})
+					.pipe(res);
 			}
 		})
 		.catch((e) => {

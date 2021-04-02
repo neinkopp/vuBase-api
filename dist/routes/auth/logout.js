@@ -7,7 +7,7 @@ var router = express_1["default"].Router();
 router.get("/logout", function (req, res) {
     try {
         if (req.session.adminId) {
-            req.session.adminId = undefined;
+            req.session.roomId = "";
         }
         else {
             req.session.destroy(function (err) {

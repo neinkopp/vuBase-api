@@ -1,0 +1,3 @@
+-- AlterTable
+ALTER TABLE "videos" ALTER COLUMN "added" DROP NOT NULL,
+ALTER COLUMN "added" DROP DEFAULT;

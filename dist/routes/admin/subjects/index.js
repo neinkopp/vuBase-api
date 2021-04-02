@@ -124,14 +124,30 @@ router.patch("/:uuid", function (req, res) { return __awaiter(void 0, void 0, vo
     });
 }); });
 router["delete"]("/:uuid", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var uuid, videosToDelete, deleteProcessingStatus, deleteVideoEntries, e_3;
+    var uuid, videosNotProcessed, videosToDelete, deleteProcessingStatus, deleteVideoEntries, e_3;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
                 uuid = req.params.uuid;
                 _a.label = 1;
             case 1:
-                _a.trys.push([1, 5, , 6]);
+                _a.trys.push([1, 6, , 7]);
+                return [4 /*yield*/, prisma.video.findFirst({
+                        where: {
+                            subjectId: uuid,
+                            processing: {
+                                isNot: {
+                                    progress: 3
+                                }
+                            }
+                        }
+                    })];
+            case 2:
+                videosNotProcessed = _a.sent();
+                if (videosNotProcessed) {
+                    res.sendStatus(400);
+                    return [2 /*return*/];
+                }
                 return [4 /*yield*/, prisma.subject.findFirst({
                         where: { uuid: uuid },
                         select: {
@@ -142,7 +158,7 @@ router["delete"]("/:uuid", function (req, res) { return __awaiter(void 0, void 0
                             }
                         }
                     })];
-            case 2:
+            case 3:
                 videosToDelete = _a.sent();
                 return [4 /*yield*/, prisma.processing.deleteMany({
                         where: {
@@ -151,7 +167,7 @@ router["delete"]("/:uuid", function (req, res) { return __awaiter(void 0, void 0
                             }
                         }
                     })];
-            case 3:
+            case 4:
                 deleteProcessingStatus = _a.sent();
                 if (videosToDelete) {
                     videosToDelete.videos.map(function (v) {
@@ -167,7 +183,7 @@ router["delete"]("/:uuid", function (req, res) { return __awaiter(void 0, void 0
                             subjectId: uuid
                         }
                     })];
-            case 4:
+            case 5:
                 deleteVideoEntries = _a.sent();
                 prisma.subject["delete"]({
                     where: { uuid: uuid }
@@ -175,13 +191,13 @@ router["delete"]("/:uuid", function (req, res) { return __awaiter(void 0, void 0
                     .then(function () {
                     res.sendStatus(204);
                 });
-                return [3 /*break*/, 6];
-            case 5:
+                return [3 /*break*/, 7];
+            case 6:
                 e_3 = _a.sent();
                 console.log(e_3);
                 res.sendStatus(500);
-                return [3 /*break*/, 6];
-            case 6: return [2 /*return*/];
+                return [3 /*break*/, 7];
+            case 7: return [2 /*return*/];
         }
     });
 }); });

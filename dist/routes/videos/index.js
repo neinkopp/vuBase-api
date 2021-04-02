@@ -70,9 +70,18 @@ router.get("/", function (req, res) { return __awaiter(void 0, void 0, void 0, f
                 _a.trys.push([1, 3, , 4]);
                 uuid_1 = req.session.roomId;
                 return [4 /*yield*/, prisma.room.findFirst({
-                        where: { uuid: uuid_1 },
+                        where: {
+                            uuid: uuid_1
+                        },
                         select: {
                             videos: {
+                                where: {
+                                    processing: {
+                                        status: {
+                                            equals: 3
+                                        }
+                                    }
+                                },
                                 select: {
                                     uuid: true,
                                     title: true,
@@ -135,6 +144,17 @@ router.get("/:uuid*", function (req, res) {
                     uuid: req.params.uuid
                 }
             }
+        },
+        select: {
+            videos: {
+                where: {
+                    processing: {
+                        status: {
+                            equals: 3
+                        }
+                    }
+                }
+            }
         }
     })
         .then(function (data) {
@@ -144,7 +164,13 @@ router.get("/:uuid*", function (req, res) {
             });
         }
         else {
-            fs_1["default"].createReadStream(process.env.NODE_APP_ROOT + "/storage/" + req.url).pipe(res);
+            fs_1["default"].createReadStream(process.env.NODE_APP_ROOT + "/storage/" + req.url)
+                .on("error", function (e) {
+                console.log(e);
+                res.sendStatus(404);
+                return;
+            })
+                .pipe(res);
         }
     })["catch"](function (e) {
         console.log(e);

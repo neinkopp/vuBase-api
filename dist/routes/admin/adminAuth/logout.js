@@ -6,13 +6,18 @@ var express_1 = __importDefault(require("express"));
 var router = express_1["default"].Router();
 router.get("/logout", function (req, res) {
     try {
-        req.session.destroy(function (err) {
-            if (err) {
-                console.log(err);
-                res.sendStatus(500);
-                return;
-            }
-        });
+        if (req.session.roomId) {
+            req.session.roomId = undefined;
+        }
+        else {
+            req.session.destroy(function (err) {
+                if (err) {
+                    console.log(err);
+                    res.sendStatus(500);
+                    return;
+                }
+            });
+        }
         res.json({
             loggedOut: true,
             message: "User logged out successfully"

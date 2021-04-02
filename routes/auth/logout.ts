@@ -4,7 +4,7 @@ const router = expressRouter.Router();
 router.get("/logout", (req, res) => {
 	try {
 		if (req.session.adminId) {
-			req.session.adminId = undefined;
+			req.session.roomId = "";
 		} else {
 			req.session.destroy((err) => {
 				if (err) {

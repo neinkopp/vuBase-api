@@ -102,6 +102,26 @@ router.get("/", async (req, res) => {
 	}
 });
 
+router.get("/:uuid", async (req, res) => {
+	const uuid = req.params.uuid;
+	try {
+		const video = await prisma.video.findFirst({
+			where: { uuid },
+			select: {
+				uuid: true,
+				title: true,
+				desc: true,
+				added: true,
+				subjectId: true,
+			},
+		});
+		res.send(video);
+	} catch (e) {
+		console.log(e);
+		res.sendStatus(500);
+	}
+});
+
 router.patch("/:uuid", async (req, res) => {
 	const uuid = req.params.uuid;
 	const params: {
@@ -205,6 +225,38 @@ router.get("/:uuid/progress", async (req, res) => {
 	} catch (e) {
 		res.sendStatus(500);
 		console.log(e);
+	}
+});
+
+router.get("/:uuid*", async (req, res) => {
+	try {
+		const videoOnline = await prisma.video.findFirst({
+			where: {
+				uuid: req.params.uuid,
+				processing: {
+					status: 3,
+				},
+			},
+			select: {
+				uuid: true,
+			},
+		});
+		if (!videoOnline) {
+			res.status(400).json({
+				message: "Not fully processed",
+			});
+		} else {
+			fs.createReadStream(process.env.NODE_APP_ROOT + "/storage/" + req.url)
+				.on("error", (e) => {
+					console.log(e);
+					res.sendStatus(404);
+					return;
+				})
+				.pipe(res);
+		}
+	} catch (e) {
+		console.log(e);
+		res.sendStatus(500);
 	}
 });
 

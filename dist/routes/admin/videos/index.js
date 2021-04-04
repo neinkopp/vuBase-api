@@ -143,8 +143,40 @@ router.get("/", function (req, res) { return __awaiter(void 0, void 0, void 0, f
         }
     });
 }); });
+router.get("/:uuid", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var uuid, video, e_2;
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0:
+                uuid = req.params.uuid;
+                _a.label = 1;
+            case 1:
+                _a.trys.push([1, 3, , 4]);
+                return [4 /*yield*/, prisma.video.findFirst({
+                        where: { uuid: uuid },
+                        select: {
+                            uuid: true,
+                            title: true,
+                            desc: true,
+                            added: true,
+                            subjectId: true
+                        }
+                    })];
+            case 2:
+                video = _a.sent();
+                res.send(video);
+                return [3 /*break*/, 4];
+            case 3:
+                e_2 = _a.sent();
+                console.log(e_2);
+                res.sendStatus(500);
+                return [3 /*break*/, 4];
+            case 4: return [2 /*return*/];
+        }
+    });
+}); });
 router.patch("/:uuid", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var uuid, params, patch, e_2;
+    var uuid, params, patch, e_3;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
@@ -169,13 +201,13 @@ router.patch("/:uuid", function (req, res) { return __awaiter(void 0, void 0, vo
                 res.send(patch);
                 return [3 /*break*/, 4];
             case 3:
-                e_2 = _a.sent();
-                if (e_2.code === "P2002") {
+                e_3 = _a.sent();
+                if (e_3.code === "P2002") {
                     res.status(400).json({
                         error: "Name already exists"
                     });
                 }
-                else if (e_2.code === "P2000") {
+                else if (e_3.code === "P2000") {
                     res.status(400).json({
                         error: "Value Too Long"
                     });
@@ -189,7 +221,7 @@ router.patch("/:uuid", function (req, res) { return __awaiter(void 0, void 0, vo
     });
 }); });
 router["delete"]("/:uuid", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var uuid, videoOnline, e_3, e_4;
+    var uuid, videoOnline, e_4, e_5;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
@@ -240,8 +272,8 @@ router["delete"]("/:uuid", function (req, res) { return __awaiter(void 0, void 0
                 res.sendStatus(204);
                 return [3 /*break*/, 7];
             case 6:
-                e_3 = _a.sent();
-                console.log(e_3);
+                e_4 = _a.sent();
+                console.log(e_4);
                 res.sendStatus(500);
                 return [3 /*break*/, 7];
             case 7: return [3 /*break*/, 9];
@@ -250,8 +282,8 @@ router["delete"]("/:uuid", function (req, res) { return __awaiter(void 0, void 0
                 })];
             case 9: return [3 /*break*/, 11];
             case 10:
-                e_4 = _a.sent();
-                console.log(e_4);
+                e_5 = _a.sent();
+                console.log(e_5);
                 res.sendStatus(500);
                 return [3 /*break*/, 11];
             case 11: return [2 /*return*/];
@@ -259,7 +291,7 @@ router["delete"]("/:uuid", function (req, res) { return __awaiter(void 0, void 0
     });
 }); });
 router.get("/:uuid/progress", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var uuid, progress, e_5;
+    var uuid, progress, e_6;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
@@ -279,11 +311,54 @@ router.get("/:uuid/progress", function (req, res) { return __awaiter(void 0, voi
                 res.send(progress);
                 return [3 /*break*/, 4];
             case 3:
-                e_5 = _a.sent();
+                e_6 = _a.sent();
                 res.sendStatus(500);
-                console.log(e_5);
+                console.log(e_6);
                 return [3 /*break*/, 4];
             case 4: return [2 /*return*/];
+        }
+    });
+}); });
+router.get("/:uuid*", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var videoOnline, e_7;
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0:
+                _a.trys.push([0, 2, , 3]);
+                return [4 /*yield*/, prisma.video.findFirst({
+                        where: {
+                            uuid: req.params.uuid,
+                            processing: {
+                                status: 3
+                            }
+                        },
+                        select: {
+                            uuid: true
+                        }
+                    })];
+            case 1:
+                videoOnline = _a.sent();
+                if (!videoOnline) {
+                    res.status(400).json({
+                        message: "Not fully processed"
+                    });
+                }
+                else {
+                    fs_1["default"].createReadStream(process.env.NODE_APP_ROOT + "/storage/" + req.url)
+                        .on("error", function (e) {
+                        console.log(e);
+                        res.sendStatus(404);
+                        return;
+                    })
+                        .pipe(res);
+                }
+                return [3 /*break*/, 3];
+            case 2:
+                e_7 = _a.sent();
+                console.log(e_7);
+                res.sendStatus(500);
+                return [3 /*break*/, 3];
+            case 3: return [2 /*return*/];
         }
     });
 }); });

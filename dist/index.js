@@ -14,7 +14,11 @@ var express_fileupload_1 = __importDefault(require("express-fileupload"));
 var os_1 = __importDefault(require("os"));
 var app = express_1["default"]();
 app.use(cors_1["default"]({
-    origin: ["https://vubase.de", "https://admin.vubase.de"],
+    origin: [
+        "https://vubase.de",
+        "https://admin.vubase.de",
+        app.get("env") !== "production" ? "http://localhost:3000" : "",
+    ],
     methods: ["POST", "GET", "PATCH", "DELETE"],
     credentials: true
 }));

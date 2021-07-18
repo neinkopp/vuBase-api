@@ -74,15 +74,15 @@ var VideoProcessing = /** @class */ (function (_super) {
     VideoProcessing.prototype.log = function (type, msg) {
         switch (type) {
             case "error":
-                console.log(chalk_1["default"].red("[Error] [" + this.videoData.uuid + "] ") + ("" + msg));
+                console.log(chalk_1["default"].red("[" + new Date().toLocaleString("de-DE") + "][Error] [" + this.videoData.uuid + "] ") + ("" + msg));
                 break;
             case "info":
-                console.log(chalk_1["default"].blue("[Info]  [" + this.videoData.uuid + "] ") + ("" + msg));
+                console.log(chalk_1["default"].blue("[" + new Date().toLocaleString("de-DE") + "][Info]  [" + this.videoData.uuid + "] ") + ("" + msg));
                 break;
             case "warn":
-                console.log(chalk_1["default"].yellow("[Warn]  [" + this.videoData.uuid + "] ") + ("" + msg));
+                console.log(chalk_1["default"].yellow("[" + new Date().toLocaleString("de-DE") + "][Warn]  [" + this.videoData.uuid + "] ") + ("" + msg));
             case "success":
-                console.log(chalk_1["default"].green("[Success] [" + this.videoData.uuid + "] ") + ("" + msg));
+                console.log(chalk_1["default"].green("[" + new Date().toLocaleString("de-DE") + "][Success] [" + this.videoData.uuid + "] ") + ("" + msg));
         }
     };
     VideoProcessing.prototype.dataValidation = function () {
@@ -179,7 +179,7 @@ var VideoProcessing = /** @class */ (function (_super) {
                         this.log("error", err);
                         this.log("warn", "Aborting due to an error...");
                         // clear directories
-                        fs_1["default"].rmdirSync("/storage/" + uuid, { recursive: true });
+                        fs_1["default"].rmSync("/storage/" + uuid, { recursive: true, force: true });
                         fs_1["default"].unlinkSync(this.file.tempFilePath);
                         _b.label = 11;
                     case 11:

@@ -14,7 +14,7 @@ model Video {
     id         Int         @id @default(autoincrement())
     uuid       String      @unique @default(uuid()) @db.Uuid
     title      String      @unique @db.VarChar(60)
-    desc       String?     @unique @db.Text
+    desc       String?     @db.Text
     bytesize   Int?        @db.Integer
     added      DateTime    @default(now()) @db.Timestamptz
     subject    Subject     @relation(fields: [subjectId], references: [uuid])

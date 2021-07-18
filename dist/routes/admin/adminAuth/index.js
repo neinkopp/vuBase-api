@@ -54,7 +54,6 @@ router.get("/", function (req, res) { return __awaiter(void 0, void 0, void 0, f
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
-                console.log(1);
                 if (!req.session.adminId) return [3 /*break*/, 2];
                 username = req.session.adminId;
                 return [4 /*yield*/, prisma.adminUser

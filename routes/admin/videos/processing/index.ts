@@ -3,7 +3,6 @@ const prisma = new PrismaClient();
 import EventEmitter from "events";
 import { UploadedFile } from "express-fileupload";
 import fs from "fs";
-import path from "path";
 import ffmpeg from "fluent-ffmpeg";
 import chalk from "chalk";
 
@@ -35,18 +34,38 @@ export default class VideoProcessing extends EventEmitter {
 	private log(type: "error" | "warn" | "info" | "success", msg: string) {
 		switch (type) {
 			case "error":
-				console.log(chalk.red(`[Error] [${this.videoData.uuid}] `) + `${msg}`);
+				console.log(
+					chalk.red(
+						`[${new Date().toLocaleString("de-DE")}][Error] [${
+							this.videoData.uuid
+						}] `
+					) + `${msg}`
+				);
 				break;
 			case "info":
-				console.log(chalk.blue(`[Info]  [${this.videoData.uuid}] `) + `${msg}`);
+				console.log(
+					chalk.blue(
+						`[${new Date().toLocaleString("de-DE")}][Info]  [${
+							this.videoData.uuid
+						}] `
+					) + `${msg}`
+				);
 				break;
 			case "warn":
 				console.log(
-					chalk.yellow(`[Warn]  [${this.videoData.uuid}] `) + `${msg}`
+					chalk.yellow(
+						`[${new Date().toLocaleString("de-DE")}][Warn]  [${
+							this.videoData.uuid
+						}] `
+					) + `${msg}`
 				);
 			case "success":
 				console.log(
-					chalk.green(`[Success] [${this.videoData.uuid}] `) + `${msg}`
+					chalk.green(
+						`[${new Date().toLocaleString("de-DE")}][Success] [${
+							this.videoData.uuid
+						}] `
+					) + `${msg}`
 				);
 		}
 	}
@@ -110,7 +129,7 @@ export default class VideoProcessing extends EventEmitter {
 				this.log("error", err);
 				this.log("warn", "Aborting due to an error...");
 				// clear directories
-				fs.rmdirSync("/storage/" + uuid, { recursive: true });
+				fs.rmSync("/storage/" + uuid, { recursive: true, force: true });
 				fs.unlinkSync(this.file.tempFilePath);
 				try {
 					await prisma.processing.update({

@@ -39,8 +39,7 @@ var sess = {
     saveUninitialized: true,
     cookie: {
         httpOnly: true,
-        secure: false,
-        maxAge: 24 * 60 * 60 * 1000
+        secure: false
     },
     secret: process.env.SESSION_COOKIE_SECRET
         ? process.env.SESSION_COOKIE_SECRET

@@ -15,7 +15,6 @@ router.use(logout);
 router.use(restore);
 
 router.get("/", async (req, res) => {
-	console.log(1);
 	if (req.session.adminId) {
 		const username = req.session.adminId;
 		const isAuth = await prisma.adminUser
@@ -30,7 +29,6 @@ router.get("/", async (req, res) => {
 				where: { username },
 			})
 			.catch((e) => {
-				console.log(2);
 				console.log(e);
 				res.sendStatus(500);
 				return;

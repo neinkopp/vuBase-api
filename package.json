@@ -8,6 +8,7 @@
 		"defaultUser": "node dist/createAdminUser.js",
 		"devstart": "tsnd --respawn index.ts",
 		"docker-build": "tsc && docker build -t vubase . && docker-compose up -d web",
+		"docker-build:dev": "tsc && docker build -t vubase . && docker-compose -f docker-compose.yml -f docker-compose.dev.yml up -d web",
 		"docker-run": "docker build -t vubase . && docker-compose up -d web",
 		"docker-run:dev": "docker-compose -f docker-compose.yml -f docker-compose.dev.yml up -d web",
 		"compile": "tsc"

@@ -2,14 +2,17 @@ import expressRouter from "express";
 import login from "./login";
 import logout from "./logout";
 
+// Generate Prisma client
 import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient();
 
+// Router settings
 const router = expressRouter.Router();
 
 router.use(login);
 router.use(logout);
 
+// Check if user is authenticated
 router.get("/", async (req, res) => {
 	if (req.session.roomId) {
 		const uuid = req.session.roomId;

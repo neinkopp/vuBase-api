@@ -4,9 +4,12 @@ const router = expressRouter.Router();
 import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient();
 
+// User credential restore system
 router.post("/restore", async (req, res) => {
+	// Get username and restore key from request
 	const username = req.body.username;
 	const key = req.body.key;
+	// Remove whitespace from user input and verify reset account secret
 	if (!username || !key) {
 		res.sendStatus(400);
 	} else if (key.replace(/\s/g, "") !== process.env.RESET_ACCOUNT_SECRET) {
@@ -21,6 +24,7 @@ router.post("/restore", async (req, res) => {
 			message: "Wrong credentials",
 		});
 	} else {
+		// Log in admin for password change
 		const adminUser = await prisma.adminUser.findFirst({
 			select: {
 				username: true,

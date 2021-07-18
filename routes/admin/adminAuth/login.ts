@@ -4,8 +4,10 @@ const router = expressRouter.Router();
 import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient();
 
+// argon2 for password hashing
 import argon2 from "argon2";
 
+// Admin login
 router.post("/login", async (req, res) => {
 	if (!req.body.username || !req.body.password) {
 		res.sendStatus(400);
@@ -15,6 +17,7 @@ router.post("/login", async (req, res) => {
 	const username = String(req.body.username);
 	const password = String(req.body.password);
 
+	// Find user in db
 	const adminUser = await prisma.adminUser.findFirst({
 		select: {
 			username: true,
@@ -27,6 +30,7 @@ router.post("/login", async (req, res) => {
 
 	try {
 		if (adminUser) {
+			// Verify password
 			await argon2.verify(adminUser.pass_hashed, password).then((bool) => {
 				if (bool) {
 					const username = adminUser.username;

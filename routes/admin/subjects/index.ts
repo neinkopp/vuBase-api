@@ -9,6 +9,7 @@ import { v4 as uuidv4 } from "uuid";
 import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient();
 
+// Create new subject
 router.post("/", async (req, res) => {
 	const name = req.body.name;
 	const uuid = uuidv4();
@@ -27,6 +28,7 @@ router.post("/", async (req, res) => {
 		res.status(201).json(result);
 	} catch (e) {
 		if (e.code === "P2002") {
+			// Unique constraint violation
 			res.status(400).json({
 				error: "Name already exists",
 			});
@@ -37,6 +39,7 @@ router.post("/", async (req, res) => {
 	}
 });
 
+// Get subject list
 router.get("/", (_, res) => {
 	prisma.subject
 		.findMany({
@@ -52,6 +55,7 @@ router.get("/", (_, res) => {
 		});
 });
 
+// Get specific subject data
 router.patch("/:uuid", async (req, res) => {
 	try {
 		const uuid = req.params.uuid;
@@ -67,9 +71,11 @@ router.patch("/:uuid", async (req, res) => {
 	}
 });
 
+// Delete subject (with all videos in it)
 router.delete("/:uuid", async (req, res) => {
 	const uuid = req.params.uuid;
 	try {
+		// Verifies that no videos are being encoded
 		const videosNotProcessed = await prisma.video.findFirst({
 			where: {
 				subjectId: uuid,
@@ -86,6 +92,7 @@ router.delete("/:uuid", async (req, res) => {
 			return;
 		}
 
+		// FInd all videos to delete
 		const videosToDelete = await prisma.subject.findFirst({
 			where: { uuid },
 			select: {
@@ -97,6 +104,7 @@ router.delete("/:uuid", async (req, res) => {
 			},
 		});
 
+		// Delete all processing entries for videos with subject
 		const deleteProcessingStatus = await prisma.processing.deleteMany({
 			where: {
 				video: {
@@ -106,6 +114,7 @@ router.delete("/:uuid", async (req, res) => {
 		});
 
 		if (videosToDelete) {
+			// Delete all video files for each entry
 			videosToDelete.videos.map((v) => {
 				const appRoot = process.env.NODE_APP_ROOT;
 				fs.rmSync(appRoot + "/storage/" + v.uuid, {
@@ -115,6 +124,7 @@ router.delete("/:uuid", async (req, res) => {
 			});
 		}
 
+		// Delete all video entries in db
 		const deleteVideoEntries = await prisma.video.deleteMany({
 			where: {
 				subjectId: uuid,

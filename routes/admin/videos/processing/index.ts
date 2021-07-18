@@ -1,3 +1,5 @@
+// Video processing class
+
 import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient();
 import EventEmitter from "events";
@@ -20,17 +22,20 @@ export default class VideoProcessing extends EventEmitter {
 
 	appRoot = process.env.NODE_APP_ROOT;
 
+	// Processing state codes
 	// 0 = error | 1 = initial state | 2 = encoding | 3 = video online
 	processingState = 1;
 	// encoding progress
 	progress = 0;
 
+	// Get video file reference and video data
 	constructor(fileDefinition: UploadedFile, videoData: VideoData) {
 		super();
 		this.file = fileDefinition;
 		this.videoData = videoData;
 	}
 
+	// Prettier/Better console log
 	private log(type: "error" | "warn" | "info" | "success", msg: string) {
 		switch (type) {
 			case "error":
@@ -70,6 +75,7 @@ export default class VideoProcessing extends EventEmitter {
 		}
 	}
 
+	// Validate that video does not exist
 	private async dataValidation() {
 		try {
 			const videoName = await prisma.video.findFirst({
@@ -85,7 +91,6 @@ export default class VideoProcessing extends EventEmitter {
 			if (videoName === null && subjectId !== null) {
 				return true;
 			} else {
-				console.log(videoName, subjectId);
 				return false;
 			}
 		} catch (e) {
@@ -93,12 +98,14 @@ export default class VideoProcessing extends EventEmitter {
 		}
 	}
 
+	// Custom abort function with rollback in every uploading state
 	private async abort(err?: string) {
 		!err
 			? (err = "An error happened in processing stage " + this.processingState)
 			: null;
 		const uuid = this.videoData.uuid;
 		switch (this.processingState) {
+			// Case for every processing state
 			case 1:
 				this.log("error", err);
 				this.log("warn", "Aborting due to an error...");
@@ -147,16 +154,19 @@ export default class VideoProcessing extends EventEmitter {
 		}
 	}
 
+	// Unlink temporary stored video file
 	private unlinkTmpFile() {
 		fs.unlinkSync(this.file.tempFilePath);
 	}
 
+	// Entry point for video processing
 	async start() {
 		const uuid = this.videoData.uuid;
 		const dataValidation = await this.dataValidation();
 		if (dataValidation === true) {
 			try {
 				this.processingState = 2;
+				// Create video entry in database
 				await prisma.video.create({
 					data: {
 						uuid,
@@ -176,6 +186,7 @@ export default class VideoProcessing extends EventEmitter {
 					},
 				});
 				this.emit("start");
+				// Encode video
 				this.encode();
 			} catch (e) {
 				return this.abort(e);
@@ -190,6 +201,7 @@ export default class VideoProcessing extends EventEmitter {
 		fs.mkdirSync(this.appRoot + "/storage/" + this.videoData.uuid + "/1080p/", {
 			recursive: true,
 		});
+		// FFmpeg encoding settings for 360p && 1080p
 		ffmpeg(this.file.tempFilePath)
 			// 360p
 			.output(
@@ -215,7 +227,7 @@ export default class VideoProcessing extends EventEmitter {
 			.size("1920x?")
 			.aspect("16:9")
 			.fps(30)
-			// setup event handlers
+			// Setup event handlers
 			.on("start", () =>
 				console.log(`[${this.videoData.uuid}]: Processing started.`)
 			)
@@ -224,19 +236,19 @@ export default class VideoProcessing extends EventEmitter {
 				console.log(
 					`[${this.videoData.uuid}]: Successfully converted into HLS stream.`
 				);
-				// unlink original video file
+				// Unlink original video file
 				this.unlinkTmpFile();
-				// proceed();
 				this.generateRootPlaylist();
 			})
 			.on("error", (err, stdout, stderr) => {
 				this.abort(err.message);
 				console.log(stderr);
 			})
-			// run command
+			// Run FFmpeg command
 			.run();
 	}
 
+	// Update processing progress
 	private async processingProgress(progress: {
 		percent: number;
 		targetSize: number;
@@ -263,6 +275,7 @@ export default class VideoProcessing extends EventEmitter {
 		}
 	}
 
+	// Generate HLS root playlist with calculated bitrate
 	private async generateRootPlaylist() {
 		try {
 			const masterPlaylist = fs.createWriteStream(
@@ -294,6 +307,7 @@ export default class VideoProcessing extends EventEmitter {
 		}
 	}
 
+	// Finalize
 	private async finishUpload() {
 		try {
 			await prisma.video.update({

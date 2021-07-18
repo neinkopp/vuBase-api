@@ -1,15 +1,20 @@
+// Main Prisma database schema file
+//-----------------------------------
 // This is your Prisma schema file,
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
+// Database settings
 datasource db {
     provider = "postgresql"
     url      = env("DATABASE_URL")
 }
 
+// Client settings
 generator client {
     provider = "prisma-client-js"
 }
 
+// Video model
 model Video {
     id         Int         @id @default(autoincrement())
     uuid       String      @unique @default(uuid()) @db.Uuid
@@ -25,6 +30,7 @@ model Video {
     @@map("videos")
 }
 
+// Room model
 model Room {
     id          Int     @id @default(autoincrement())
     uuid        String  @unique @default(uuid()) @db.Uuid
@@ -35,6 +41,7 @@ model Room {
     @@map("rooms")
 }
 
+// Subject model
 model Subject {
     id     Int     @id @default(autoincrement())
     uuid   String  @unique @default(uuid()) @db.Uuid
@@ -45,6 +52,7 @@ model Subject {
     @@map("subjects")
 }
 
+// Processing model
 model Processing {
     id       Int    @id @default(autoincrement())
     uuid     String @unique @db.Uuid
@@ -55,12 +63,14 @@ model Processing {
     @@map("video_upload_progress")
 }
 
+// AdminUser model
 model AdminUser {
     username     String   @unique
     pass_hashed  String
     latest_login DateTime @db.Timestamptz
 }
 
+// SessionModel
 model Session {
     id        String   @id
     sid       String   @unique

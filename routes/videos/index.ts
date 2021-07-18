@@ -1,19 +1,27 @@
 import expressRouter from "express";
 import { PrismaClient } from "@prisma/client";
 import shortUUID, { uuid } from "short-uuid";
-const translator = shortUUID();
 import fs from "fs";
 
+// short UUID translator
+const translator = shortUUID();
+
 const router = expressRouter.Router();
+
+// Generate Prisma client
 const prisma = new PrismaClient();
 
+// Get video list
 router.get("/", async (req, res) => {
 	if (!req.session.roomId) {
+		// Not authenticated into any room
 		res.sendStatus(401);
 		return;
 	}
 	try {
 		const uuid = req.session.roomId;
+
+		// List all online videos in room
 		const videos = await prisma.room.findFirst({
 			where: {
 				uuid,
@@ -43,6 +51,8 @@ router.get("/", async (req, res) => {
 				},
 			},
 		});
+
+		// Translate each long UUIDv4 into short-uuid
 		const filteredVideos = videos?.videos.map((v) => {
 			return {
 				...v,
@@ -56,6 +66,7 @@ router.get("/", async (req, res) => {
 	}
 });
 
+// Get specific video; serve HLS chunks/playlist
 router.get("/:uuid*", (req, res) => {
 	if (!req.session.roomId) {
 		res.sendStatus(401);
@@ -78,6 +89,7 @@ router.get("/:uuid*", (req, res) => {
 
 	const uuid = req.session.roomId;
 
+	// Verify that video is online
 	prisma.room
 		.findFirst({
 			where: {
@@ -106,6 +118,7 @@ router.get("/:uuid*", (req, res) => {
 					message: "Wrong room",
 				});
 			} else {
+				// Serve files out of storage folder
 				fs.createReadStream(process.env.NODE_APP_ROOT + "/storage/" + req.url)
 					.on("error", (e) => {
 						console.log(e);

@@ -6,14 +6,17 @@ import restore from "./restore";
 import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient();
 
+// argon2 for password hashing
 import argon2 from "argon2";
 
+// Router settings
 const router = expressRouter.Router();
 
 router.use(login);
 router.use(logout);
 router.use(restore);
 
+// Check if admin is authenticated
 router.get("/", async (req, res) => {
 	if (req.session.adminId) {
 		const username = req.session.adminId;
@@ -62,6 +65,7 @@ router.get("/", async (req, res) => {
 	}
 });
 
+// Edit admin profile settings
 router.patch("/", async (req, res) => {
 	if (!req.session.adminId) {
 		res.sendStatus(401);
@@ -81,6 +85,7 @@ router.patch("/", async (req, res) => {
 				data,
 			});
 
+		// Different scenarios for each case
 		if (req.body.password) {
 			argon2.hash(req.body.password.trim()).then((p) => {
 				const data = {

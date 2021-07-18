@@ -1,3 +1,5 @@
+// Admin video functions
+
 import expressRouter, { NextFunction, Request, Response } from "express";
 const router = expressRouter.Router();
 
@@ -5,13 +7,13 @@ import fs from "fs";
 import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient();
 import { v4 as uuidv4 } from "uuid";
-import shortUUID from "short-uuid";
 import { UploadedFile } from "express-fileupload";
-const translator = shortUUID();
 import path from "path";
 
+// import video processing class
 import VideoProcessing from "./processing";
 
+// May use for debugging
 const checkReferer = (req: Request, res: Response, next: NextFunction) => {
 	if (
 		!req.headers.referer ||
@@ -25,11 +27,12 @@ const checkReferer = (req: Request, res: Response, next: NextFunction) => {
 	}
 };
 
+// Upload video
 router.post("/", (req, res) => {
 	if (!req.body.title || !req.body.subject || !req.body.motionFactor) {
 		return res.status(400).json("Bad Request.");
 	}
-
+	// Check subject uuid
 	if (
 		!req.body.subject.match(
 			/^[0-9a-f]{8}-[0-9a-f]{4}-[0-5][0-9a-f]{3}-[089ab][0-9a-f]{3}-[0-9a-f]{12}$/i
@@ -40,13 +43,16 @@ router.post("/", (req, res) => {
 			.json({ message: "The specified UUID is not valid." });
 	}
 
+	// Generate uuid for video
 	const uploadId = uuidv4();
 
 	if (!req.files || !req.files.video) {
 		return res.status(400).send();
 	}
+
 	const video = req.files.video as UploadedFile;
 
+	// instanciate new VideoProcessing with event handlers
 	const processing = new VideoProcessing(video, {
 		...req.body,
 		uuid: uploadId,
@@ -67,7 +73,8 @@ router.post("/", (req, res) => {
 	processing.start();
 });
 
-router.get("/", async (req, res) => {
+// Get video list
+router.get("/", async (_, res) => {
 	try {
 		const videos = await prisma.video.findMany({
 			select: {
@@ -102,6 +109,7 @@ router.get("/", async (req, res) => {
 	}
 });
 
+// Get specific video data
 router.get("/:uuid", async (req, res) => {
 	const uuid = req.params.uuid;
 	try {
@@ -122,6 +130,7 @@ router.get("/:uuid", async (req, res) => {
 	}
 });
 
+// Patch video data
 router.patch("/:uuid", async (req, res) => {
 	const uuid = req.params.uuid;
 	const params: {
@@ -157,6 +166,7 @@ router.patch("/:uuid", async (req, res) => {
 	}
 });
 
+// Delete video
 router.delete("/:uuid", async (req, res) => {
 	const uuid = req.params.uuid;
 
@@ -167,8 +177,8 @@ router.delete("/:uuid", async (req, res) => {
 	if (!uuid) {
 		res.sendStatus(400);
 	}
-	// on end:
 	try {
+		// If video has "error" or "online" status
 		const videoOnline = await prisma.processing.findFirst({
 			where: {
 				uuid,
@@ -185,10 +195,12 @@ router.delete("/:uuid", async (req, res) => {
 		});
 		if (videoOnline) {
 			try {
+				// Delete physical video
 				fs.rmSync(path.dirname(require.main.filename) + "/storage/" + uuid, {
 					recursive: true,
 					force: true,
 				});
+				// Delete video data
 				await prisma.processing.delete({
 					where: { uuid },
 				});
@@ -211,6 +223,7 @@ router.delete("/:uuid", async (req, res) => {
 	}
 });
 
+// Get video upload status and progress
 router.get("/:uuid/progress", async (req, res) => {
 	const uuid = req.params.uuid;
 	try {
@@ -228,6 +241,7 @@ router.get("/:uuid/progress", async (req, res) => {
 	}
 });
 
+// Get HLS stream for video preview
 router.get("/:uuid*", async (req, res) => {
 	try {
 		const videoOnline = await prisma.video.findFirst({
@@ -246,6 +260,7 @@ router.get("/:uuid*", async (req, res) => {
 				message: "Not fully processed",
 			});
 		} else {
+			// Serve files out of storage folder
 			fs.createReadStream(process.env.NODE_APP_ROOT + "/storage/" + req.url)
 				.on("error", (e) => {
 					console.log(e);

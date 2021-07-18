@@ -4,6 +4,7 @@ const prisma = new PrismaClient();
 import argon2 from "argon2";
 import crypt from "crypto-random-string";
 
+// Upsert default admin user with random password
 try {
 	argon2
 		.hash(crypt({ length: 20, type: "ascii-printable" }))

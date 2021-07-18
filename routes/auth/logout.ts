@@ -1,11 +1,14 @@
 import expressRouter from "express";
 const router = expressRouter.Router();
 
+// User logout
 router.get("/logout", (req, res) => {
 	try {
 		if (req.session.adminId) {
+			// empty roomId to only log admin out of room (not admin panel)
 			req.session.roomId = "";
 		} else {
+			// Fully destroy user session
 			req.session.destroy((err) => {
 				if (err) {
 					console.log(err);

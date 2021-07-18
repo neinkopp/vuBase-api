@@ -4,10 +4,12 @@ const router = expressRouter.Router();
 import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient();
 
+// argon2 for password verification
 import argon2 from "argon2";
 
 import { v4 as uuidv4 } from "uuid";
 
+// Create room with password
 router.post("/", async (req, res) => {
 	if (!req.body.name || !req.body.password) {
 		res.sendStatus(400);
@@ -17,9 +19,11 @@ router.post("/", async (req, res) => {
 	try {
 		const uuid = uuidv4();
 		const name = req.body.name;
+		// Hash room password
 		const pass_hashed = await argon2.hash(req.body.password);
 
 		try {
+			// Create room entry
 			const result = await prisma.room.create({
 				data: { uuid, name, pass_hashed },
 			});
@@ -38,6 +42,7 @@ router.post("/", async (req, res) => {
 	}
 });
 
+// Get list of all rooms
 router.get("/", async (req, res) => {
 	try {
 		const result = await prisma.room.findMany({
@@ -49,6 +54,7 @@ router.get("/", async (req, res) => {
 	}
 });
 
+// Patch room params including password
 router.patch("/:uuid", async (req, res) => {
 	if (!req.params.uuid) {
 		res.sendStatus(400);
@@ -95,6 +101,7 @@ router.patch("/:uuid", async (req, res) => {
 	}
 });
 
+// Delete room
 router.delete("/:uuid", async (req, res) => {
 	if (!req.params.uuid) {
 		return res.sendStatus(400);
@@ -112,6 +119,7 @@ router.delete("/:uuid", async (req, res) => {
 	}
 });
 
+// Verify that password works (for debugging)
 router.post("/:uuid/verify/", async (req, res) => {
 	if (!req.params.uuid || !req.body.password) {
 		res.sendStatus(400);
@@ -134,6 +142,7 @@ router.post("/:uuid/verify/", async (req, res) => {
 	}
 });
 
+// Add video to room
 router.post("/:uuid/videos", async (req, res) => {
 	if (!req.params.uuid) {
 		res.sendStatus(400);
@@ -164,6 +173,7 @@ router.post("/:uuid/videos", async (req, res) => {
 	}
 });
 
+// Get list of all videos in room
 router.get("/:uuid/videos", async (req, res) => {
 	if (!req.params.uuid) {
 		res.sendStatus(400);
@@ -195,6 +205,7 @@ router.get("/:uuid/videos", async (req, res) => {
 	}
 });
 
+// Remove video from room
 router.delete("/:uuid/videos/:video", async (req, res) => {
 	if (!req.params.uuid || !req.params.video) {
 		res.sendStatus(400);

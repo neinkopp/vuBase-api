@@ -1,4 +1,5 @@
 "use strict";
+// Video processing class
 var __extends = (this && this.__extends) || (function () {
     var extendStatics = function (d, b) {
         extendStatics = Object.setPrototypeOf ||
@@ -7,6 +8,8 @@ var __extends = (this && this.__extends) || (function () {
         return extendStatics(d, b);
     };
     return function (d, b) {
+        if (typeof b !== "function" && b !== null)
+            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
         extendStatics(d, b);
         function __() { this.constructor = d; }
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
@@ -60,9 +63,11 @@ var fluent_ffmpeg_1 = __importDefault(require("fluent-ffmpeg"));
 var chalk_1 = __importDefault(require("chalk"));
 var VideoProcessing = /** @class */ (function (_super) {
     __extends(VideoProcessing, _super);
+    // Get video file reference and video data
     function VideoProcessing(fileDefinition, videoData) {
         var _this = _super.call(this) || this;
         _this.appRoot = process.env.NODE_APP_ROOT;
+        // Processing state codes
         // 0 = error | 1 = initial state | 2 = encoding | 3 = video online
         _this.processingState = 1;
         // encoding progress
@@ -71,6 +76,7 @@ var VideoProcessing = /** @class */ (function (_super) {
         _this.videoData = videoData;
         return _this;
     }
+    // Prettier/Better console log
     VideoProcessing.prototype.log = function (type, msg) {
         switch (type) {
             case "error":
@@ -85,6 +91,7 @@ var VideoProcessing = /** @class */ (function (_super) {
                 console.log(chalk_1["default"].green("[" + new Date().toLocaleString("de-DE") + "][Success] [" + this.videoData.uuid + "] ") + ("" + msg));
         }
     };
+    // Validate that video does not exist
     VideoProcessing.prototype.dataValidation = function () {
         return __awaiter(this, void 0, void 0, function () {
             var videoName, subjectId, e_1;
@@ -110,7 +117,6 @@ var VideoProcessing = /** @class */ (function (_super) {
                             return [2 /*return*/, true];
                         }
                         else {
-                            console.log(videoName, subjectId);
                             return [2 /*return*/, false];
                         }
                         return [3 /*break*/, 4];
@@ -123,6 +129,7 @@ var VideoProcessing = /** @class */ (function (_super) {
             });
         });
     };
+    // Custom abort function with rollback in every uploading state
     VideoProcessing.prototype.abort = function (err) {
         return __awaiter(this, void 0, void 0, function () {
             var uuid, _a, videoOnline, e_2, e_3;
@@ -205,9 +212,11 @@ var VideoProcessing = /** @class */ (function (_super) {
             });
         });
     };
+    // Unlink temporary stored video file
     VideoProcessing.prototype.unlinkTmpFile = function () {
         fs_1["default"].unlinkSync(this.file.tempFilePath);
     };
+    // Entry point for video processing
     VideoProcessing.prototype.start = function () {
         return __awaiter(this, void 0, void 0, function () {
             var uuid, dataValidation, e_4;
@@ -223,6 +232,7 @@ var VideoProcessing = /** @class */ (function (_super) {
                     case 2:
                         _a.trys.push([2, 4, , 5]);
                         this.processingState = 2;
+                        // Create video entry in database
                         return [4 /*yield*/, prisma.video.create({
                                 data: {
                                     uuid: uuid,
@@ -242,8 +252,10 @@ var VideoProcessing = /** @class */ (function (_super) {
                                 }
                             })];
                     case 3:
+                        // Create video entry in database
                         _a.sent();
                         this.emit("start");
+                        // Encode video
                         this.encode();
                         return [3 /*break*/, 5];
                     case 4:
@@ -262,6 +274,7 @@ var VideoProcessing = /** @class */ (function (_super) {
         fs_1["default"].mkdirSync(this.appRoot + "/storage/" + this.videoData.uuid + "/1080p/", {
             recursive: true
         });
+        // FFmpeg encoding settings for 360p && 1080p
         fluent_ffmpeg_1["default"](this.file.tempFilePath)
             // 360p
             .output(this.appRoot + "/storage/" + this.videoData.uuid + "/360p/360p.m3u8")
@@ -283,25 +296,25 @@ var VideoProcessing = /** @class */ (function (_super) {
             .size("1920x?")
             .aspect("16:9")
             .fps(30)
-            // setup event handlers
+            // Setup event handlers
             .on("start", function () {
             return console.log("[" + _this.videoData.uuid + "]: Processing started.");
         })
             .on("progress", function (progress) { return _this.processingProgress(progress); })
             .on("end", function () {
             console.log("[" + _this.videoData.uuid + "]: Successfully converted into HLS stream.");
-            // unlink original video file
+            // Unlink original video file
             _this.unlinkTmpFile();
-            // proceed();
             _this.generateRootPlaylist();
         })
             .on("error", function (err, stdout, stderr) {
             _this.abort(err.message);
             console.log(stderr);
         })
-            // run command
+            // Run FFmpeg command
             .run();
     };
+    // Update processing progress
     VideoProcessing.prototype.processingProgress = function (progress) {
         return __awaiter(this, void 0, void 0, function () {
             var roundedProgress;
@@ -327,6 +340,7 @@ var VideoProcessing = /** @class */ (function (_super) {
             });
         });
     };
+    // Generate HLS root playlist with calculated bitrate
     VideoProcessing.prototype.generateRootPlaylist = function () {
         return __awaiter(this, void 0, void 0, function () {
             var masterPlaylist;
@@ -354,6 +368,7 @@ var VideoProcessing = /** @class */ (function (_super) {
             });
         });
     };
+    // Finalize
     VideoProcessing.prototype.finishUpload = function () {
         return __awaiter(this, void 0, void 0, function () {
             var e_5;

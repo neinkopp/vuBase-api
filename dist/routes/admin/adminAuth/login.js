@@ -42,7 +42,9 @@ var express_1 = __importDefault(require("express"));
 var router = express_1["default"].Router();
 var client_1 = require("@prisma/client");
 var prisma = new client_1.PrismaClient();
+// argon2 for password hashing
 var argon2_1 = __importDefault(require("argon2"));
+// Admin login
 router.post("/login", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
     var username, password, adminUser, e_1;
     return __generator(this, function (_a) {
@@ -69,6 +71,7 @@ router.post("/login", function (req, res) { return __awaiter(void 0, void 0, voi
             case 2:
                 _a.trys.push([2, 6, , 7]);
                 if (!adminUser) return [3 /*break*/, 4];
+                // Verify password
                 return [4 /*yield*/, argon2_1["default"].verify(adminUser.pass_hashed, password).then(function (bool) {
                         if (bool) {
                             var username_1 = adminUser.username;
@@ -89,6 +92,7 @@ router.post("/login", function (req, res) { return __awaiter(void 0, void 0, voi
                         }
                     })];
             case 3:
+                // Verify password
                 _a.sent();
                 return [3 /*break*/, 5];
             case 4:

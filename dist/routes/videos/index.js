@@ -52,16 +52,20 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 var express_1 = __importDefault(require("express"));
 var client_1 = require("@prisma/client");
 var short_uuid_1 = __importDefault(require("short-uuid"));
-var translator = short_uuid_1["default"]();
 var fs_1 = __importDefault(require("fs"));
+// short UUID translator
+var translator = short_uuid_1["default"]();
 var router = express_1["default"].Router();
+// Generate Prisma client
 var prisma = new client_1.PrismaClient();
+// Get video list
 router.get("/", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
     var uuid_1, videos, filteredVideos, e_1;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
                 if (!req.session.roomId) {
+                    // Not authenticated into any room
                     res.sendStatus(401);
                     return [2 /*return*/];
                 }
@@ -114,7 +118,8 @@ router.get("/", function (req, res) { return __awaiter(void 0, void 0, void 0, f
         }
     });
 }); });
-router.get("/:uuid*", function (req, res) {
+// Get specific video; serve HLS chunks/playlist
+router.get("/:uuid(*)", function (req, res) {
     if (!req.session.roomId) {
         res.sendStatus(401);
         return;
@@ -135,6 +140,7 @@ router.get("/:uuid*", function (req, res) {
         return;
     }
     var uuid = req.session.roomId;
+    // Verify that video is online
     prisma.room
         .findFirst({
         where: {
@@ -164,6 +170,7 @@ router.get("/:uuid*", function (req, res) {
             });
         }
         else {
+            // Serve files out of storage folder
             fs_1["default"].createReadStream(process.env.NODE_APP_ROOT + "/storage/" + req.url)
                 .on("error", function (e) {
                 console.log(e);

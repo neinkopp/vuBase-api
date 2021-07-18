@@ -5,7 +5,7 @@ WORKDIR /usr/src/api
 COPY package*.json ./
 
 RUN npm install --only=production
-RUN apk add --no-cache ffmpeg=4.2.4-r0
+RUN apk add --no-cache ffmpeg=4.3.1-r4
 
 COPY . .
 

@@ -1,4 +1,5 @@
 "use strict";
+// Admin video functions
 var __assign = (this && this.__assign) || function () {
     __assign = Object.assign || function(t) {
         for (var s, i = 1, n = arguments.length; i < n; i++) {
@@ -55,10 +56,10 @@ var fs_1 = __importDefault(require("fs"));
 var client_1 = require("@prisma/client");
 var prisma = new client_1.PrismaClient();
 var uuid_1 = require("uuid");
-var short_uuid_1 = __importDefault(require("short-uuid"));
-var translator = short_uuid_1["default"]();
 var path_1 = __importDefault(require("path"));
+// import video processing class
 var processing_1 = __importDefault(require("./processing"));
+// May use for debugging
 var checkReferer = function (req, res, next) {
     if (!req.headers.referer ||
         !/(http:|https:)\/\/localhost:3000\/.*|(http:|https:)\/\/192.168.178.74:3000\/.*/g.test(req.headers.referer)) {
@@ -68,20 +69,24 @@ var checkReferer = function (req, res, next) {
         next();
     }
 };
+// Upload video
 router.post("/", function (req, res) {
     if (!req.body.title || !req.body.subject || !req.body.motionFactor) {
         return res.status(400).json("Bad Request.");
     }
+    // Check subject uuid
     if (!req.body.subject.match(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-5][0-9a-f]{3}-[089ab][0-9a-f]{3}-[0-9a-f]{12}$/i)) {
         return res
             .status(400)
             .json({ message: "The specified UUID is not valid." });
     }
+    // Generate uuid for video
     var uploadId = uuid_1.v4();
     if (!req.files || !req.files.video) {
         return res.status(400).send();
     }
     var video = req.files.video;
+    // instanciate new VideoProcessing with event handlers
     var processing = new processing_1["default"](video, __assign(__assign({}, req.body), { uuid: uploadId }));
     processing.on("start", function () {
         res.status(202).json({
@@ -98,7 +103,8 @@ router.post("/", function (req, res) {
     });
     processing.start();
 });
-router.get("/", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+// Get video list
+router.get("/", function (_, res) { return __awaiter(void 0, void 0, void 0, function () {
     var videos, e_1;
     return __generator(this, function (_a) {
         switch (_a.label) {
@@ -143,6 +149,7 @@ router.get("/", function (req, res) { return __awaiter(void 0, void 0, void 0, f
         }
     });
 }); });
+// Get specific video data
 router.get("/:uuid", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
     var uuid, video, e_2;
     return __generator(this, function (_a) {
@@ -175,6 +182,7 @@ router.get("/:uuid", function (req, res) { return __awaiter(void 0, void 0, void
         }
     });
 }); });
+// Patch video data
 router.patch("/:uuid", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
     var uuid, params, patch, e_3;
     return __generator(this, function (_a) {
@@ -220,6 +228,7 @@ router.patch("/:uuid", function (req, res) { return __awaiter(void 0, void 0, vo
         }
     });
 }); });
+// Delete video
 router["delete"]("/:uuid", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
     var uuid, videoOnline, e_4, e_5;
     return __generator(this, function (_a) {
@@ -255,14 +264,17 @@ router["delete"]("/:uuid", function (req, res) { return __awaiter(void 0, void 0
                 _a.label = 3;
             case 3:
                 _a.trys.push([3, 6, , 7]);
+                // Delete physical video
                 fs_1["default"].rmSync(path_1["default"].dirname(require.main.filename) + "/storage/" + uuid, {
                     recursive: true,
                     force: true
                 });
+                // Delete video data
                 return [4 /*yield*/, prisma.processing["delete"]({
                         where: { uuid: uuid }
                     })];
             case 4:
+                // Delete video data
                 _a.sent();
                 return [4 /*yield*/, prisma.video["delete"]({
                         where: { uuid: uuid }
@@ -290,6 +302,7 @@ router["delete"]("/:uuid", function (req, res) { return __awaiter(void 0, void 0
         }
     });
 }); });
+// Get video upload status and progress
 router.get("/:uuid/progress", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
     var uuid, progress, e_6;
     return __generator(this, function (_a) {
@@ -319,7 +332,8 @@ router.get("/:uuid/progress", function (req, res) { return __awaiter(void 0, voi
         }
     });
 }); });
-router.get("/:uuid*", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+// Get HLS stream for video preview
+router.get("/:uuid(*)", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
     var videoOnline, e_7;
     return __generator(this, function (_a) {
         switch (_a.label) {
@@ -344,6 +358,7 @@ router.get("/:uuid*", function (req, res) { return __awaiter(void 0, void 0, voi
                     });
                 }
                 else {
+                    // Serve files out of storage folder
                     fs_1["default"].createReadStream(process.env.NODE_APP_ROOT + "/storage/" + req.url)
                         .on("error", function (e) {
                         console.log(e);

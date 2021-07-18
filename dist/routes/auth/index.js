@@ -41,11 +41,14 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 var express_1 = __importDefault(require("express"));
 var login_1 = __importDefault(require("./login"));
 var logout_1 = __importDefault(require("./logout"));
+// Generate Prisma client
 var client_1 = require("@prisma/client");
 var prisma = new client_1.PrismaClient();
+// Router settings
 var router = express_1["default"].Router();
 router.use(login_1["default"]);
 router.use(logout_1["default"]);
+// Check if user is authenticated
 router.get("/", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
     var uuid, roomName;
     return __generator(this, function (_a) {
@@ -69,6 +72,7 @@ router.get("/", function (req, res) { return __awaiter(void 0, void 0, void 0, f
                 roomName = _a.sent();
                 if (roomName) {
                     res.json({
+                        csrfToken: req.csrfToken(),
                         authorized: true,
                         room: req.session.roomId,
                         roomName: roomName,
@@ -85,6 +89,7 @@ router.get("/", function (req, res) { return __awaiter(void 0, void 0, void 0, f
                         }
                     });
                     res.json({
+                        csrfToken: req.csrfToken(),
                         authorized: false,
                         message: "User is unauthorized."
                     });
@@ -92,6 +97,7 @@ router.get("/", function (req, res) { return __awaiter(void 0, void 0, void 0, f
                 return [3 /*break*/, 3];
             case 2:
                 res.json({
+                    csrfToken: req.csrfToken(),
                     authorized: false,
                     message: "User is unauthorized."
                 });

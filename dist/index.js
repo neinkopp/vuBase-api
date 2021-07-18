@@ -10,9 +10,17 @@ var prisma_session_store_1 = require("@quixo3/prisma-session-store");
 var client_1 = require("@prisma/client");
 var cookie_parser_1 = __importDefault(require("cookie-parser"));
 var cors_1 = __importDefault(require("cors"));
+var csurf_1 = __importDefault(require("csurf"));
+var express_rate_limit_1 = __importDefault(require("express-rate-limit"));
 var express_fileupload_1 = __importDefault(require("express-fileupload"));
 var os_1 = __importDefault(require("os"));
 var app = express_1["default"]();
+var limiter = express_rate_limit_1["default"]({
+    windowMs: 15 * 60 * 1000,
+    max: 100
+});
+//  apply to all requests
+app.use(limiter);
 app.use(cors_1["default"]({
     origin: [
         "https://vubase.de",
@@ -56,6 +64,15 @@ if (app.get("env") === "production") {
     sess.cookie.secure = true; // serve secure cookies
 }
 app.use(express_session_1["default"](sess));
+app.use(csurf_1["default"]({
+    cookie: {
+        key: "_csrf-vuBase",
+        path: "/",
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        maxAge: 3600
+    }
+}));
 var port = 4000;
 app.use("/", routes_1["default"]);
 app.listen(port, function () {

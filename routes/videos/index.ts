@@ -67,7 +67,7 @@ router.get("/", async (req, res) => {
 });
 
 // Get specific video; serve HLS chunks/playlist
-router.get("/:uuid*", (req, res) => {
+router.get("/:uuid(*)", (req, res) => {
 	if (!req.session.roomId) {
 		res.sendStatus(401);
 		return;
@@ -119,6 +119,14 @@ router.get("/:uuid*", (req, res) => {
 				});
 			} else {
 				// Serve files out of storage folder
+
+				if (req.url.indexOf(".") !== req.url.lastIndexOf(".")) {
+					res.status(400).json({
+						message: "Not more than one period allowed",
+					});
+					return;
+				}
+
 				fs.createReadStream(process.env.NODE_APP_ROOT + "/storage/" + req.url)
 					.on("error", (e) => {
 						console.log(e);

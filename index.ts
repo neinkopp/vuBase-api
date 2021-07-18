@@ -5,6 +5,8 @@ import { PrismaSessionStore } from "@quixo3/prisma-session-store";
 import { PrismaClient } from "@prisma/client";
 import cookies from "cookie-parser";
 import cors from "cors";
+import csrf from "csurf";
+import rateLimit from "express-rate-limit";
 import fileUpload from "express-fileupload";
 import os from "os";
 
@@ -16,6 +18,14 @@ declare module "express-session" {
 }
 
 const app = express();
+
+const limiter = rateLimit({
+	windowMs: 15 * 60 * 1000, // 15 minutes
+	max: 100, // limit each IP to 100 requests per windowMs
+});
+
+//  apply to all requests
+app.use(limiter);
 
 app.use(
 	cors({
@@ -43,6 +53,7 @@ app.use(
 	fileUpload({
 		useTempFiles: true,
 		tempFileDir: os.tmpdir(),
+		safeFileNames: true,
 	})
 );
 
@@ -72,6 +83,18 @@ if (app.get("env") === "production") {
 }
 
 app.use(expressSession(sess));
+
+app.use(
+	csrf({
+		cookie: {
+			key: "_csrf-vuBase",
+			path: "/",
+			httpOnly: true,
+			secure: process.env.NODE_ENV === "production",
+			maxAge: 3600, // 1-hour
+		},
+	})
+);
 
 const port = 4000;
 

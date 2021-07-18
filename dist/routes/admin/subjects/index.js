@@ -44,6 +44,7 @@ var fs_1 = __importDefault(require("fs"));
 var uuid_1 = require("uuid");
 var client_1 = require("@prisma/client");
 var prisma = new client_1.PrismaClient();
+// Create new subject
 router.post("/", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
     var name, uuid, result, e_1;
     return __generator(this, function (_a) {
@@ -72,6 +73,7 @@ router.post("/", function (req, res) { return __awaiter(void 0, void 0, void 0, 
             case 3:
                 e_1 = _a.sent();
                 if (e_1.code === "P2002") {
+                    // Unique constraint violation
                     res.status(400).json({
                         error: "Name already exists"
                     });
@@ -85,6 +87,7 @@ router.post("/", function (req, res) { return __awaiter(void 0, void 0, void 0, 
         }
     });
 }); });
+// Get subject list
 router.get("/", function (_, res) {
     prisma.subject
         .findMany({
@@ -98,6 +101,7 @@ router.get("/", function (_, res) {
         res.sendStatus(500);
     });
 });
+// Get specific subject data
 router.patch("/:uuid", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
     var uuid, name, result, e_2;
     return __generator(this, function (_a) {
@@ -123,6 +127,7 @@ router.patch("/:uuid", function (req, res) { return __awaiter(void 0, void 0, vo
         }
     });
 }); });
+// Delete subject (with all videos in it)
 router["delete"]("/:uuid", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
     var uuid, videosNotProcessed, videosToDelete, deleteProcessingStatus, deleteVideoEntries, e_3;
     return __generator(this, function (_a) {
@@ -170,6 +175,7 @@ router["delete"]("/:uuid", function (req, res) { return __awaiter(void 0, void 0
             case 4:
                 deleteProcessingStatus = _a.sent();
                 if (videosToDelete) {
+                    // Delete all video files for each entry
                     videosToDelete.videos.map(function (v) {
                         var appRoot = process.env.NODE_APP_ROOT;
                         fs_1["default"].rmSync(appRoot + "/storage/" + v.uuid, {

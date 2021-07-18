@@ -31,6 +31,7 @@ router.get("/", async (req, res) => {
 			});
 		if (roomName) {
 			res.json({
+				csrfToken: req.csrfToken(),
 				authorized: true,
 				room: req.session.roomId,
 				roomName,
@@ -46,12 +47,14 @@ router.get("/", async (req, res) => {
 				}
 			});
 			res.json({
+				csrfToken: req.csrfToken(),
 				authorized: false,
 				message: "User is unauthorized.",
 			});
 		}
 	} else {
 		res.json({
+			csrfToken: req.csrfToken(),
 			authorized: false,
 			message: "User is unauthorized.",
 		});

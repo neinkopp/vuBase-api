@@ -4,12 +4,15 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 var express_1 = __importDefault(require("express"));
 var router = express_1["default"].Router();
+// User logout
 router.get("/logout", function (req, res) {
     try {
         if (req.session.adminId) {
+            // empty roomId to only log admin out of room (not admin panel)
             req.session.roomId = "";
         }
         else {
+            // Fully destroy user session
             req.session.destroy(function (err) {
                 if (err) {
                     console.log(err);

@@ -43,6 +43,7 @@ var client_1 = require("@prisma/client");
 var prisma = new client_1.PrismaClient();
 var argon2_1 = __importDefault(require("argon2"));
 var crypto_random_string_1 = __importDefault(require("crypto-random-string"));
+// Upsert default admin user with random password
 try {
     argon2_1["default"]
         .hash(crypto_random_string_1["default"]({ length: 20, type: "ascii-printable" }))

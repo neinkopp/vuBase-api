@@ -44,11 +44,14 @@ var logout_1 = __importDefault(require("./logout"));
 var restore_1 = __importDefault(require("./restore"));
 var client_1 = require("@prisma/client");
 var prisma = new client_1.PrismaClient();
+// argon2 for password hashing
 var argon2_1 = __importDefault(require("argon2"));
+// Router settings
 var router = express_1["default"].Router();
 router.use(login_1["default"]);
 router.use(logout_1["default"]);
 router.use(restore_1["default"]);
+// Check if admin is authenticated
 router.get("/", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
     var username, isAuth;
     return __generator(this, function (_a) {
@@ -67,7 +70,6 @@ router.get("/", function (req, res) { return __awaiter(void 0, void 0, void 0, f
                         },
                         where: { username: username }
                     })["catch"](function (e) {
-                        console.log(2);
                         console.log(e);
                         res.sendStatus(500);
                         return;
@@ -107,6 +109,7 @@ router.get("/", function (req, res) { return __awaiter(void 0, void 0, void 0, f
         }
     });
 }); });
+// Edit admin profile settings
 router.patch("/", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
     var insertChanges_1;
     return __generator(this, function (_a) {
@@ -132,6 +135,7 @@ router.patch("/", function (req, res) { return __awaiter(void 0, void 0, void 0,
                     }
                 });
             }); };
+            // Different scenarios for each case
             if (req.body.password) {
                 argon2_1["default"].hash(req.body.password.trim()).then(function (p) {
                     var data = {

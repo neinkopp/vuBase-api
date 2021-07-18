@@ -44,8 +44,10 @@ var adminAuth_1 = __importDefault(require("./adminAuth"));
 var subjects_1 = __importDefault(require("./subjects"));
 var rooms_1 = __importDefault(require("./rooms"));
 var videos_1 = __importDefault(require("./videos"));
+// Generate Prisma client
 var client_1 = require("@prisma/client");
 var prisma = new client_1.PrismaClient();
+// isAuth middleware
 var isAuth = function (req, res, next) { return __awaiter(void 0, void 0, void 0, function () {
     var isAuth_1;
     return __generator(this, function (_a) {
@@ -83,6 +85,8 @@ var isAuth = function (req, res, next) { return __awaiter(void 0, void 0, void 0
         }
     });
 }); };
+// Router settings
+// Use isAuth middleware when needed
 router.use("/auth", adminAuth_1["default"]);
 router.use("/subjects", isAuth, subjects_1["default"]);
 router.use("/rooms", isAuth, rooms_1["default"]);

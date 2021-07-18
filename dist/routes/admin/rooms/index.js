@@ -42,8 +42,10 @@ var express_1 = __importDefault(require("express"));
 var router = express_1["default"].Router();
 var client_1 = require("@prisma/client");
 var prisma = new client_1.PrismaClient();
+// argon2 for password verification
 var argon2_1 = __importDefault(require("argon2"));
 var uuid_1 = require("uuid");
+// Create room with password
 router.post("/", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
     var uuid, name, pass_hashed, result, e_1, e_2;
     return __generator(this, function (_a) {
@@ -91,6 +93,7 @@ router.post("/", function (req, res) { return __awaiter(void 0, void 0, void 0, 
         }
     });
 }); });
+// Get list of all rooms
 router.get("/", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
     var result, e_3;
     return __generator(this, function (_a) {
@@ -112,6 +115,7 @@ router.get("/", function (req, res) { return __awaiter(void 0, void 0, void 0, f
         }
     });
 }); });
+// Patch room params including password
 router.patch("/:uuid", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
     var uuid, name, updateRoom, sendResults, pass_hashed, pass_hashed;
     return __generator(this, function (_a) {
@@ -179,6 +183,7 @@ router.patch("/:uuid", function (req, res) { return __awaiter(void 0, void 0, vo
         }
     });
 }); });
+// Delete room
 router["delete"]("/:uuid", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
     var uuid, e_5;
     return __generator(this, function (_a) {
@@ -206,6 +211,7 @@ router["delete"]("/:uuid", function (req, res) { return __awaiter(void 0, void 0
         }
     });
 }); });
+// Verify that password works (for debugging)
 router.post("/:uuid/verify/", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
     var uuid, result, verify, e_6;
     return __generator(this, function (_a) {
@@ -241,6 +247,7 @@ router.post("/:uuid/verify/", function (req, res) { return __awaiter(void 0, voi
         }
     });
 }); });
+// Add video to room
 router.post("/:uuid/videos", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
     var uuid, body, e_7;
     return __generator(this, function (_a) {
@@ -284,6 +291,7 @@ router.post("/:uuid/videos", function (req, res) { return __awaiter(void 0, void
         }
     });
 }); });
+// Get list of all videos in room
 router.get("/:uuid/videos", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
     var uuid, videos, e_8;
     return __generator(this, function (_a) {
@@ -327,6 +335,7 @@ router.get("/:uuid/videos", function (req, res) { return __awaiter(void 0, void 
         }
     });
 }); });
+// Remove video from room
 router["delete"]("/:uuid/videos/:video", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
     var uuid, video, e_9;
     return __generator(this, function (_a) {

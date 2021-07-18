@@ -242,7 +242,7 @@ router.get("/:uuid/progress", async (req, res) => {
 });
 
 // Get HLS stream for video preview
-router.get("/:uuid*", async (req, res) => {
+router.get("/:uuid(*)", async (req, res) => {
 	try {
 		const videoOnline = await prisma.video.findFirst({
 			where: {
@@ -260,6 +260,12 @@ router.get("/:uuid*", async (req, res) => {
 				message: "Not fully processed",
 			});
 		} else {
+			if (req.url.indexOf(".") !== req.url.lastIndexOf(".")) {
+				res.status(400).json({
+					message: "Not more than one period allowed",
+				});
+				return;
+			}
 			// Serve files out of storage folder
 			fs.createReadStream(process.env.NODE_APP_ROOT + "/storage/" + req.url)
 				.on("error", (e) => {

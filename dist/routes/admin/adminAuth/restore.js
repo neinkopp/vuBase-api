@@ -42,6 +42,7 @@ var express_1 = __importDefault(require("express"));
 var router = express_1["default"].Router();
 var client_1 = require("@prisma/client");
 var prisma = new client_1.PrismaClient();
+// User credential restore system
 router.post("/restore", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
     var username, key, adminUser;
     return __generator(this, function (_a) {

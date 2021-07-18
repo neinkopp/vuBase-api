@@ -42,7 +42,9 @@ var express_1 = __importDefault(require("express"));
 var router = express_1["default"].Router();
 var client_1 = require("@prisma/client");
 var prisma = new client_1.PrismaClient();
+// argon2 for password verification
 var argon2_1 = __importDefault(require("argon2"));
+// User login
 router.post("/login", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
     var uuid, roomName, name, password, checkRoom, e_1;
     return __generator(this, function (_a) {
@@ -96,6 +98,7 @@ router.post("/login", function (req, res) { return __awaiter(void 0, void 0, voi
                 if (!checkRoom) return [3 /*break*/, 6];
                 return [4 /*yield*/, argon2_1["default"].verify(checkRoom.pass_hashed, password).then(function (bool) {
                         if (bool) {
+                            // Login user
                             var uuid = checkRoom.uuid;
                             req.session.roomId = uuid;
                             res.status(200).json({

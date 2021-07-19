@@ -242,7 +242,7 @@ router.get("/:uuid/progress", async (req, res) => {
 });
 
 // Get HLS stream for video preview
-router.get("/:uuid(*)", async (req, res) => {
+router.get("/:uuid/:url(*)", async (req, res) => {
 	try {
 		const videoOnline = await prisma.video.findFirst({
 			where: {
@@ -260,14 +260,16 @@ router.get("/:uuid(*)", async (req, res) => {
 				message: "Not fully processed",
 			});
 		} else {
-			if (req.url.indexOf(".") !== req.url.lastIndexOf(".")) {
+			// Serve files out of storage folder
+			const filePath = req.params.uuid + "/" + req.params.url;
+			if (filePath.indexOf(".") !== filePath.lastIndexOf(".")) {
 				res.status(400).json({
 					message: "File path not allowed",
 				});
 				return;
 			}
-			// Serve files out of storage folder
-			fs.createReadStream(process.env.NODE_APP_ROOT + "/storage/" + req.url)
+
+			fs.createReadStream(process.env.NODE_APP_ROOT + "/storage/" + filePath)
 				.on("error", (e) => {
 					console.log(e);
 					res.sendStatus(404);

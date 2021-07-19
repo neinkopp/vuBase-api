@@ -333,8 +333,8 @@ router.get("/:uuid/progress", function (req, res) { return __awaiter(void 0, voi
     });
 }); });
 // Get HLS stream for video preview
-router.get("/:uuid(*)", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var videoOnline, e_7;
+router.get("/:uuid/:url(*)", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var videoOnline, filePath, e_7;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
@@ -358,14 +358,14 @@ router.get("/:uuid(*)", function (req, res) { return __awaiter(void 0, void 0, v
                     });
                 }
                 else {
-                    if (req.url.indexOf(".") !== req.url.lastIndexOf(".")) {
+                    filePath = req.params.uuid + "/" + req.params.url;
+                    if (filePath.indexOf(".") !== filePath.lastIndexOf(".")) {
                         res.status(400).json({
                             message: "File path not allowed"
                         });
                         return [2 /*return*/];
                     }
-                    // Serve files out of storage folder
-                    fs_1["default"].createReadStream(process.env.NODE_APP_ROOT + "/storage/" + req.url)
+                    fs_1["default"].createReadStream(process.env.NODE_APP_ROOT + "/storage/" + filePath)
                         .on("error", function (e) {
                         console.log(e);
                         res.sendStatus(404);

@@ -89,9 +89,6 @@ router.get("/:uuid/:url(*)", (req, res) => {
 
 	const uuid = req.session.roomId;
 
-	console.log(req.params.uuid);
-	console.log(req.params.url);
-
 	// Verify that video is online
 	prisma.room
 		.findFirst({

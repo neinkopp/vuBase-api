@@ -122,7 +122,7 @@ router.get("/:uuid(*)", (req, res) => {
 
 				if (req.url.indexOf(".") !== req.url.lastIndexOf(".")) {
 					res.status(400).json({
-						message: "Not more than one period allowed",
+						message: "File path not allowed",
 					});
 					return;
 				}

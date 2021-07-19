@@ -67,7 +67,7 @@ router.get("/", async (req, res) => {
 });
 
 // Get specific video; serve HLS chunks/playlist
-router.get("/:uuid(*)", (req, res) => {
+router.get("/:uuid/:url(*)", (req, res) => {
 	if (!req.session.roomId) {
 		res.sendStatus(401);
 		return;
@@ -88,6 +88,9 @@ router.get("/:uuid(*)", (req, res) => {
 	}
 
 	const uuid = req.session.roomId;
+
+	console.log(req.params.uuid);
+	console.log(req.params.url);
 
 	// Verify that video is online
 	prisma.room
@@ -119,15 +122,15 @@ router.get("/:uuid(*)", (req, res) => {
 				});
 			} else {
 				// Serve files out of storage folder
-
-				if (req.url.indexOf(".") !== req.url.lastIndexOf(".")) {
+				const filePath = req.params.uuid + "/" + req.params.url;
+				if (filePath.indexOf(".") !== filePath.lastIndexOf(".")) {
 					res.status(400).json({
 						message: "File path not allowed",
 					});
 					return;
 				}
 
-				fs.createReadStream(process.env.NODE_APP_ROOT + "/storage/" + req.url)
+				fs.createReadStream(process.env.NODE_APP_ROOT + "/storage/" + filePath)
 					.on("error", (e) => {
 						console.log(e);
 						res.sendStatus(404);

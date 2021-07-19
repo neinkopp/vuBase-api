@@ -19,20 +19,13 @@ declare module "express-session" {
 
 const app = express();
 
-const limiter = rateLimit({
-	windowMs: 15 * 60 * 1000, // 15 minutes
-	max: 100, // limit each IP to 100 requests per windowMs
-});
-
-//  apply to all requests
-app.use(limiter);
-
 app.use(
 	cors({
 		origin: [
 			"https://vubase.de",
 			"https://admin.vubase.de",
 			app.get("env") !== "production" ? "http://localhost:3000" : "",
+			app.get("env") !== "production" ? "http://localhost:3001" : "",
 		],
 		methods: ["POST", "GET", "PATCH", "DELETE"],
 		credentials: true,
@@ -95,6 +88,14 @@ app.use(
 		},
 	})
 );
+
+const limiter = rateLimit({
+	windowMs: 15 * 60 * 1000, // 15 minutes
+	max: 100, // limit each IP to 100 requests per windowMs
+});
+
+//  apply to all requests
+app.use(limiter);
 
 const port = 4000;
 

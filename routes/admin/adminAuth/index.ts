@@ -38,6 +38,7 @@ router.get("/", async (req, res) => {
 			});
 		if (isAuth) {
 			res.json({
+				csrfToken: req.csrfToken(),
 				authorized: true,
 				username: isAuth.username,
 				message: "User is authorized.",
@@ -53,12 +54,14 @@ router.get("/", async (req, res) => {
 				}
 			});
 			res.json({
+				csrfToken: req.csrfToken(),
 				authorized: false,
 				message: "User is unauthorized.",
 			});
 		}
 	} else {
 		res.json({
+			csrfToken: req.csrfToken(),
 			authorized: false,
 			message: "User is unauthorized.",
 		});

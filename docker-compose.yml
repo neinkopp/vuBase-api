@@ -9,7 +9,7 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_DB: vuBase
     volumes:
-      - ./pgdata:/var/lib/postgresql/data
+      - ../pgdata:/var/lib/postgresql/data
     restart: unless-stopped
     ports:
       - "5432:5432"
@@ -21,7 +21,7 @@ services:
       TZ: "Europe/Berlin"
       PORT: 4000
     volumes:
-      - ./storage:/usr/src/api/storage
+      - ../storage:/usr/src/api/storage
     restart: unless-stopped
     depends_on:
       - db

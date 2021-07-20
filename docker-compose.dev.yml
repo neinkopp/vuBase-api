@@ -1,5 +1,30 @@
 version: "3.7"
 services:
+  db:
+    image: postgres:alpine
+    env_file:
+      - ./.env
+    environment:
+      TZ: "Europe/Berlin"
+      POSTGRES_USER: postgres
+      POSTGRES_DB: vuBase
+    volumes:
+      - ./pgdata:/var/lib/postgresql/data
+    restart: unless-stopped
+    ports:
+      - "5432:5432"
   web:
+    image: vubase
+    env_file:
+      - ./.env
     environment:
       NODE_ENV: development
+      TZ: "Europe/Berlin"
+      PORT: 4000
+    volumes:
+      - ./storage:/usr/src/api/storage
+    restart: unless-stopped
+    depends_on:
+      - db
+    ports:
+      - "4000:4000"

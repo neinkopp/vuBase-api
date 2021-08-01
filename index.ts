@@ -1,5 +1,5 @@
 import express from "express";
-import expressSession from "express-session";
+import expressSession, { SessionOptions } from "express-session";
 import routes from "./routes";
 import { PrismaSessionStore } from "@quixo3/prisma-session-store";
 import { PrismaClient } from "@prisma/client";
@@ -52,7 +52,7 @@ app.use(
 
 const prisma = new PrismaClient();
 
-const sess = {
+const sess: SessionOptions = {
 	resave: false,
 	saveUninitialized: true,
 	cookie: {
@@ -72,25 +72,20 @@ const sess = {
 if (app.get("env") === "production") {
 	console.log("secure");
 	app.set("trust proxy", 1); // trust first proxy
-	sess.cookie.secure = true; // serve secure cookies
+	sess.cookie!.secure = true; // serve secure cookies
+	sess.cookie!.sameSite = "none"; // serve same-site cookies
 }
 
 app.use(expressSession(sess));
 
 app.use(
 	csrf({
-		cookie: {
-			key: "_csrf-vuBase",
-			path: "/",
-			httpOnly: true,
-			secure: process.env.NODE_ENV === "production",
-			maxAge: 3600, // 1-hour
-		},
+		cookie: false,
 	})
 );
 
 const limiter = rateLimit({
-	windowMs: 15 * 60 * 1000, // 15 minutes
+	windowMs: 5 * 60 * 1000, // 5 minutes
 	max: 100, // limit each IP to 100 requests per windowMs
 });
 

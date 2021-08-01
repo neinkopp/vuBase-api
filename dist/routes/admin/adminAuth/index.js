@@ -42,6 +42,7 @@ var express_1 = __importDefault(require("express"));
 var login_1 = __importDefault(require("./login"));
 var logout_1 = __importDefault(require("./logout"));
 var restore_1 = __importDefault(require("./restore"));
+var csrf_token_1 = __importDefault(require("./csrf-token"));
 var client_1 = require("@prisma/client");
 var prisma = new client_1.PrismaClient();
 // argon2 for password hashing
@@ -51,6 +52,7 @@ var router = express_1["default"].Router();
 router.use(login_1["default"]);
 router.use(logout_1["default"]);
 router.use(restore_1["default"]);
+router.use(csrf_token_1["default"]);
 // Check if admin is authenticated
 router.get("/", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
     var username, isAuth;
@@ -78,7 +80,6 @@ router.get("/", function (req, res) { return __awaiter(void 0, void 0, void 0, f
                 isAuth = _a.sent();
                 if (isAuth) {
                     res.json({
-                        csrfToken: req.csrfToken(),
                         authorized: true,
                         username: isAuth.username,
                         message: "User is authorized."
@@ -95,7 +96,6 @@ router.get("/", function (req, res) { return __awaiter(void 0, void 0, void 0, f
                         }
                     });
                     res.json({
-                        csrfToken: req.csrfToken(),
                         authorized: false,
                         message: "User is unauthorized."
                     });
@@ -103,7 +103,6 @@ router.get("/", function (req, res) { return __awaiter(void 0, void 0, void 0, f
                 return [3 /*break*/, 3];
             case 2:
                 res.json({
-                    csrfToken: req.csrfToken(),
                     authorized: false,
                     message: "User is unauthorized."
                 });

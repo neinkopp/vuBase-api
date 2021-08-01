@@ -1,6 +1,7 @@
 import expressRouter from "express";
 import login from "./login";
 import logout from "./logout";
+import csrf from "./csrf-token";
 
 // Generate Prisma client
 import { PrismaClient } from "@prisma/client";
@@ -11,6 +12,7 @@ const router = expressRouter.Router();
 
 router.use(login);
 router.use(logout);
+router.use(csrf);
 
 // Check if user is authenticated
 router.get("/", async (req, res) => {
@@ -31,7 +33,6 @@ router.get("/", async (req, res) => {
 			});
 		if (roomName) {
 			res.json({
-				csrfToken: req.csrfToken(),
 				authorized: true,
 				room: req.session.roomId,
 				roomName,
@@ -47,7 +48,6 @@ router.get("/", async (req, res) => {
 				}
 			});
 			res.json({
-				csrfToken: req.csrfToken(),
 				authorized: false,
 				message: "User is unauthorized.",
 			});

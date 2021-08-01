@@ -2,6 +2,7 @@ import expressRouter from "express";
 import login from "./login";
 import logout from "./logout";
 import restore from "./restore";
+import csrf from "./csrf-token";
 
 import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient();
@@ -15,6 +16,7 @@ const router = expressRouter.Router();
 router.use(login);
 router.use(logout);
 router.use(restore);
+router.use(csrf);
 
 // Check if admin is authenticated
 router.get("/", async (req, res) => {
@@ -38,7 +40,6 @@ router.get("/", async (req, res) => {
 			});
 		if (isAuth) {
 			res.json({
-				csrfToken: req.csrfToken(),
 				authorized: true,
 				username: isAuth.username,
 				message: "User is authorized.",
@@ -54,14 +55,12 @@ router.get("/", async (req, res) => {
 				}
 			});
 			res.json({
-				csrfToken: req.csrfToken(),
 				authorized: false,
 				message: "User is unauthorized.",
 			});
 		}
 	} else {
 		res.json({
-			csrfToken: req.csrfToken(),
 			authorized: false,
 			message: "User is unauthorized.",
 		});

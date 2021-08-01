@@ -58,19 +58,14 @@ if (app.get("env") === "production") {
     console.log("secure");
     app.set("trust proxy", 1); // trust first proxy
     sess.cookie.secure = true; // serve secure cookies
+    sess.cookie.sameSite = "none"; // serve same-site cookies
 }
 app.use(express_session_1["default"](sess));
 app.use(csurf_1["default"]({
-    cookie: {
-        key: "_csrf-vuBase",
-        path: "/",
-        httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        maxAge: 3600
-    }
+    cookie: false
 }));
 var limiter = express_rate_limit_1["default"]({
-    windowMs: 15 * 60 * 1000,
+    windowMs: 5 * 60 * 1000,
     max: 100
 });
 //  apply to all requests

@@ -65,8 +65,8 @@ app.use(csurf_1["default"]({
     cookie: false
 }));
 var limiter = express_rate_limit_1["default"]({
-    windowMs: 5 * 60 * 1000,
-    max: 100
+    windowMs: 1 * 60 * 1000,
+    max: 1000
 });
 //  apply to all requests
 app.use(limiter);
